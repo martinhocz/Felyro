@@ -1,6 +1,6 @@
 //
 //  AddCardView.swift
-//  Catima
+//  Felyro
 //
 //  Created by Martin Horáček on 28.05.2025.
 //

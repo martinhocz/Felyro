@@ -14,6 +14,7 @@ struct FelyroApp: App {
                 //CardGridView()
                   //  .modelContainer(for: Card.self)
                 SplashView()
+                    .modelContainer(for: Card.self)
             }
         }
 }
