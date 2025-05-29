@@ -16,6 +16,16 @@ struct CardDTO: Codable, Identifiable {
     var barcodeType: BarcodeType
     var category: CategoryType
 
+    // 1️⃣ pro převod z Card
+    init(from card: Card) {
+        self.name = card.name
+        self.note = card.note
+        self.barcodeData = card.barcodeData
+        self.barcodeType = card.barcodeType
+        self.category = card.category
+    }
+
+    // 2️⃣ pro Decodable
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         name = try container.decode(String.self, forKey: .name)
@@ -24,6 +34,7 @@ struct CardDTO: Codable, Identifiable {
         barcodeType = try container.decode(BarcodeType.self, forKey: .barcodeType)
         category = try container.decodeIfPresent(CategoryType.self, forKey: .category) ?? .other
     }
+
 
 
     func toCard() -> Card {
