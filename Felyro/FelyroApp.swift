@@ -4,17 +4,19 @@
 //
 //  Created by Martin Horáček on 28.05.2025.
 //
-
 import SwiftUI
+import SwiftData
 
 @main
 struct FelyroApp: App {
+    init() {
+        DataMigrator.migrateInvalidCategories()
+    }
+
     var body: some Scene {
-            WindowGroup {
-                //CardGridView()
-                  //  .modelContainer(for: Card.self)
-                SplashView()
-                    .modelContainer(for: Card.self)
-            }
+        WindowGroup {
+            SplashView()
+                .modelContainer(for: Card.self)
         }
+    }
 }

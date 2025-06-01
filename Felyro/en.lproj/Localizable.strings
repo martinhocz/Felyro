@@ -5,3 +5,41 @@
 //  Created by Martin Horáček on 01.06.2025.
 //
 
+"cards" = "Cards";
+"import" = "Import";
+"export" = "Export";
+"delete" = "Delete";
+"cancel" = "Cancel";
+"edit" = "Edit";
+"scan" = "Scan";
+"add_card" = "Add Card";
+"search_cards" = "Search Card";
+"all_categories" = "All";
+"other_category" = "Other";
+"info_about_card" = "Card Information";
+"name" = "Name";
+"note" = "Note";
+"category" = "Category";
+"barcode" = "Barcode";
+"code" = "Code";
+"type_code" = "Code Type";
+"save" = "Save";
+"ean-13_error" = "EAN-13 must have exactly 13 digits";
+"ean-8_error" = "EAN-8 must have exactly 8 digits";
+"code128_error" = "Code128 must have at least 4 characters";
+"qr_error" = "QR code must not be empty";
+"error_with_generating_code" = "Failed to generate code";
+"save_changes" = "Save Changes";
+"remove_card" = "Delete Card";
+"edit_card" = "Edit Card";
+"sure_delete" = "Are you sure you want to delete this card?";
+
+//CategoryType
+"category_all" = "All";
+"category_groceries" = "Groceries";
+"category_drugstore" = "Drugstore";
+"category_fashion" = "Fashion";
+"category_electronics" = "Electronics";
+"category_other" = "Other";
+"category_hobby" = "Hobby";
+"category" = "Category";

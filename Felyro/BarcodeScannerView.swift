@@ -4,13 +4,18 @@
 //
 //  Created by Martin Horáček on 28.05.2025.
 //
+
 import SwiftUI
 import AVFoundation
+import PhotosUI
+import Vision
 
 struct BarcodeScannerView: View {
     @Environment(\.dismiss) private var dismiss
-    @State private var scannedCode: String?
+    @State private var scannedCode: String? = nil
     @State private var isTorchOn = false
+    @State private var selectedItem: PhotosPickerItem? = nil
+    @State private var imageData: Data?
 
     var completion: (String) -> Void
 
@@ -40,19 +45,72 @@ struct BarcodeScannerView: View {
 
                 Spacer()
 
-                Button(action: { isTorchOn.toggle() }) {
-                    Image(systemName: isTorchOn ? "flashlight.on.fill" : "flashlight.off.fill")
-                        .font(.title2)
-                        .foregroundColor(.white)
-                        .padding()
-                        .background(.ultraThinMaterial)
-                        .clipShape(Circle())
+                HStack(spacing: 20) {
+                    Button(action: { isTorchOn.toggle() }) {
+                        Image(systemName: isTorchOn ? "flashlight.on.fill" : "flashlight.off.fill")
+                            .font(.title2)
+                            .foregroundColor(.white)
+                            .padding()
+                            .background(.ultraThinMaterial)
+                            .clipShape(Circle())
+                    }
+
+                    PhotosPicker(
+                        selection: $selectedItem,
+                        matching: .images,
+                        photoLibrary: .shared()
+                    ) {
+                        Image(systemName: "photo")
+                            .font(.title2)
+                            .foregroundColor(.white)
+                            .padding()
+                            .background(.ultraThinMaterial)
+                            .clipShape(Circle())
+                    }
+                    .task(id: selectedItem) {
+                        guard let item = selectedItem else { return }
+
+                        do {
+                            if let data = try await item.loadTransferable(type: Data.self),
+                               let uiImage = UIImage(data: data) {
+                                detectBarcode(in: uiImage)
+                            }
+                        } catch {
+                            print("Chyba při načítání fotky: \(error)")
+                        }
+                    }
                 }
                 .padding(.bottom, 30)
             }
         }
+        .onChange(of: selectedItem) {
+            Task {
+                guard let data = try? await selectedItem?.loadTransferable(type: Data.self),
+                      let uiImage = UIImage(data: data) else { return }
+
+                detectBarcode(in: uiImage)
+            }
+        }
+    }
+
+    private func detectBarcode(in image: UIImage) {
+        guard let cgImage = image.cgImage else { return }
+
+        let request = VNDetectBarcodesRequest { request, error in
+            if let results = request.results as? [VNBarcodeObservation],
+               let payload = results.first?.payloadStringValue {
+                scannedCode = payload
+                completion(payload)
+                dismiss()
+            }
+        }
+
+        let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
+        try? handler.perform([request])
     }
 }
+
+// MARK: - Camera Preview
 
 struct CameraPreview: UIViewControllerRepresentable {
     @Binding var isTorchOn: Bool
@@ -68,6 +126,8 @@ struct CameraPreview: UIViewControllerRepresentable {
         uiViewController.setTorch(isTorchOn)
     }
 }
+
+// MARK: - UIKit Scanner
 
 class ScannerViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
     var onCodeScanned: ((String) -> Void)?

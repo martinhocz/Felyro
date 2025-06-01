@@ -17,28 +17,28 @@ struct EditCardView: View {
 
     var body: some View {
         Form {
-            Section("Informace o kartě") {
-                TextField("Název", text: $card.name)
+            Section(String(localized: "info_about_card")) {
+                TextField(String(localized: "name"), text: $card.name)
 
-                TextField("Poznámka", text: Binding(
+                TextField(String(localized: "note"), text: Binding(
                     get: { card.note ?? "" },
                     set: { card.note = $0 }
                 ))
 
-                Picker("Kategorie", selection: $card.category) {
+                Picker(String(localized: "category"), selection: $card.category) {
                     ForEach(CategoryType.allCases.filter { $0 != .all }) { cat in
                         Text(cat.displayName).tag(cat)
                     }
                 }
             }
 
-            Section("Čárový kód") {
-                TextField("Kód", text: $card.barcodeData)
+            Section(String(localized: "barcode")) {
+                TextField(String(localized: "code"), text: $card.barcodeData)
                     .onChange(of: card.barcodeData) {
                         validateBarcode()
                     }
 
-                Picker("Typ kódu", selection: $card.barcodeType) {
+                Picker(String(localized: "type_code"), selection: $card.barcodeType) {
                     ForEach(BarcodeType.allCases) { type in
                         Text(type.displayName).tag(type)
                     }
@@ -64,7 +64,7 @@ struct EditCardView: View {
             }
 
             Section {
-                Button("Uložit změny") {
+                Button(String(localized: "save_changes")) {
                     validateBarcode()
                     if barcodeError == nil {
                         dismiss()
@@ -74,23 +74,23 @@ struct EditCardView: View {
                 Button(role: .destructive) {
                     showDeleteConfirmation = true
                 } label: {
-                    Label("Smazat kartu", systemImage: "trash")
+                    Label(String(localized: "remove_card"), systemImage: "trash")
                 }
             }
         }
-        .navigationTitle("Upravit kartu")
+        .navigationTitle(String(localized: "edit_card"))
         .onAppear {
             validateBarcode()
         }
-        .confirmationDialog("Opravdu chcete smazat tuto kartu?",
+        .confirmationDialog(String(localized: "sure_delete"),
                             isPresented: $showDeleteConfirmation,
                             titleVisibility: .visible) {
-            Button("Smazat", role: .destructive) {
+            Button(String(localized: "delete"), role: .destructive) {
                 context.delete(card)
                 NotificationCenter.default.post(name: .cardWasDeleted, object: card.id)
                 dismiss()
             }
-            Button("Zrušit", role: .cancel) {}
+            Button(String(localized: "cancel"), role: .cancel) {}
         }
     }
 
@@ -98,15 +98,15 @@ struct EditCardView: View {
         switch card.barcodeType {
         case .ean13:
             barcodeError = card.barcodeData.count == 13 && card.barcodeData.allSatisfy(\.isNumber)
-                ? nil : "EAN-13 musí mít přesně 13 číslic"
+            ? nil : String(localized: "ean-13_error")
         case .ean8:
             barcodeError = card.barcodeData.count == 8 && card.barcodeData.allSatisfy(\.isNumber)
-                ? nil : "EAN-8 musí mít přesně 8 číslic"
+                ? nil : String(localized: "ean-8_error")
         case .code128:
             barcodeError = card.barcodeData.count >= 4
-                ? nil : "Code128 musí mít alespoň 4 znaky"
+                ? nil : String(localized: "code128_error")
         case .qr:
-            barcodeError = card.barcodeData.isEmpty ? "QR kód nesmí být prázdný" : nil
+            barcodeError = card.barcodeData.isEmpty ? String(localized: "qr_error") : nil
         }
     }
 }

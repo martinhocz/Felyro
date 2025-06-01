@@ -1,19 +1,25 @@
+//
+//  CardGridContentView.swift
+//  Felyro
+//
+//  Created by Martin Horáček on 01.06.2025.
+//
 import SwiftUI
 import SwiftData
 
 struct CardGridContentView: View {
-    @Binding var selectedCardForDetail: Card?
     @Binding var searchText: String
+    @Binding var selectedCard: Card?
+    @Binding var selectedCategory: CategoryType
     @Binding var isSelectionMode: Bool
     @Binding var selectedCards: Set<Card>
-    @Binding var selectedCategory: CategoryType
 
     @Query(sort: \Card.name) private var cards: [Card]
 
     var filteredCards: [Card] {
-        cards.filter { card in
-            (selectedCategory == .all || card.category == selectedCategory) &&
-            (searchText.isEmpty || card.name.localizedCaseInsensitiveContains(searchText))
+        cards.filter {
+            (selectedCategory == .all || $0.category == selectedCategory) &&
+            (searchText.isEmpty || $0.name.localizedCaseInsensitiveContains(searchText))
         }
     }
 
@@ -39,7 +45,7 @@ struct CardGridContentView: View {
             .padding(.top)
 
             ScrollView {
-                LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 2)) {
+                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())]) {
                     ForEach(filteredCards) { card in
                         Group {
                             if isSelectionMode {
@@ -50,7 +56,7 @@ struct CardGridContentView: View {
                             } else {
                                 CardTileView(card: card)
                                     .onTapGesture {
-                                        selectedCardForDetail = card
+                                        selectedCard = card
                                     }
                                     .onLongPressGesture {
                                         isSelectionMode = true
@@ -61,13 +67,6 @@ struct CardGridContentView: View {
                     }
                 }
                 .padding()
-            }
-            .onAppear {
-                for card in cards {
-                    if Mirror(reflecting: card).children.first(where: { $0.label == "category" }) == nil {
-                        card.category = .other
-                    }
-                }
             }
         }
     }

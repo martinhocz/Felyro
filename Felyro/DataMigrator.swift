@@ -4,16 +4,15 @@
 //
 //  Created by Martin Horáček on 01.06.2025.
 //
-
 import Foundation
 import SwiftData
 
 struct DataMigrator {
-    static func migrateInvalidCategories() async {
+    static func migrateInvalidCategories() {
         do {
-            let context = try ModelContext(ModelContainer(for: Card.self))
-            let descriptor = FetchDescriptor<Card>()
-            var cards = try context.fetch(descriptor)
+            let container = try ModelContainer(for: Card.self)
+            let context = ModelContext(container)
+            let cards = try context.fetch(FetchDescriptor<Card>())
 
             var didFix = false
 
@@ -26,12 +25,12 @@ struct DataMigrator {
 
             if didFix {
                 try context.save()
-                print("✅ Migrace kategorií: opraveny neplatné hodnoty.")
+                print("✅ Migrace proběhla")
             } else {
-                print("✅ Migrace kategorií: není co opravovat.")
+                print("ℹ️ Není co opravovat")
             }
         } catch {
-            print("❌ Migrace kategorií selhala: \(error.localizedDescription)")
+            print("❌ Migrace selhala: \(error.localizedDescription)")
         }
     }
 }

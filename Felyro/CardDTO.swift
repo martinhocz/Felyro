@@ -5,7 +5,6 @@
 //  Created by Martin Horáček on 28.05.2025.
 //
 
-
 import Foundation
 
 struct CardDTO: Codable, Identifiable {
@@ -16,7 +15,7 @@ struct CardDTO: Codable, Identifiable {
     var barcodeType: BarcodeType
     var category: CategoryType
 
-    // 1️⃣ pro převod z Card
+    // transfer from Card to DTO
     init(from card: Card) {
         self.name = card.name
         self.note = card.note
@@ -25,19 +24,30 @@ struct CardDTO: Codable, Identifiable {
         self.category = card.category
     }
 
-    // 2️⃣ pro Decodable
+    // secure Decodabled with fallback
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         name = try container.decode(String.self, forKey: .name)
         note = try container.decodeIfPresent(String.self, forKey: .note)
         barcodeData = try container.decode(String.self, forKey: .barcodeData)
         barcodeType = try container.decode(BarcodeType.self, forKey: .barcodeType)
-        category = try container.decodeIfPresent(CategoryType.self, forKey: .category) ?? .other
+
+        // Secured decoding categories (with fallback)
+        if let rawCategory = try container.decodeIfPresent(String.self, forKey: .category) {
+            category = CategoryType(from: rawCategory)
+        } else {
+            category = .other
+        }
     }
 
-
-
+    // tranfer from DTO back to model
     func toCard() -> Card {
-        Card(name: name, note: note, barcodeData: barcodeData, barcodeType: barcodeType, category: category)
+        Card(
+            name: name,
+            note: note,
+            barcodeData: barcodeData,
+            barcodeType: barcodeType,
+            category: category
+        )
     }
 }

@@ -28,7 +28,7 @@ struct CardDetailView: View {
                     .foregroundColor(.primary)
                     .padding(.top, 4)
             } else {
-                Text("Nepodařilo se vygenerovat kód")
+                Text(String(localized: "error_with_generating_code"))
                     .foregroundColor(.secondary)
             }
 
@@ -41,7 +41,7 @@ struct CardDetailView: View {
         }
         .navigationTitle(card.name)
         .toolbar {
-            NavigationLink("Upravit", destination: EditCardView(card: card))
+            NavigationLink(String(localized: "edit"), destination: EditCardView(card: card))
         }
         .padding()
         .onAppear {

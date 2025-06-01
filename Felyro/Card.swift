@@ -24,16 +24,27 @@ enum BarcodeType: String, Codable, CaseIterable, Identifiable {
 }
 
 enum CategoryType: String, Codable, CaseIterable, Identifiable {
-    case all = "Všechny"
-    case groceries = "Potraviny"
-    case drugstore = "Drogerie"
-    case fashion = "Móda"
-    case electronics = "Elektronika"
-    case other = "Ostatní"
+    case all
+    case groceries
+    case drugstore
+    case fashion
+    case electronics
+    case hobby
+    case other
 
     var id: String { self.rawValue }
-    var displayName: String { self.rawValue }
+
+    var displayName: String {
+        NSLocalizedString("category_\(rawValue)", comment: "")
+    }
+
 }
+extension CategoryType {
+    init(from string: String) {
+        self = CategoryType(rawValue: string) ?? .other
+    }
+}
+
 
 @Model
 final class Card {

@@ -22,24 +22,24 @@ struct AddCardView: View {
 
     var body: some View {
         Form {
-            Section("Informace o kartě") {
-                TextField("Název", text: $name)
-                TextField("Poznámka", text: $note)
+            Section(String(localized: "info_about_card")) {
+                TextField(String(localized: "name"), text: $name)
+                TextField(String(localized: "note"), text: $note)
 
-                Picker("Kategorie", selection: $category) {
+                Picker(String(localized: "category"), selection: $category) {
                     ForEach(CategoryType.allCases.filter { $0 != .all }) { cat in
                         Text(cat.displayName).tag(cat)
                     }
                 }
             }
 
-            Section("Čárový kód") {
-                TextField("Kód", text: $barcodeData)
+            Section(String(localized: "barcode")) {
+                TextField(String(localized: "code"), text: $barcodeData)
                     .onChange(of: barcodeData) {
                         validateBarcode()
                     }
 
-                Picker("Typ kódu", selection: $barcodeType) {
+                Picker(String(localized: "type_code"), selection: $barcodeType) {
                     ForEach(BarcodeType.allCases) { type in
                         Text(type.displayName).tag(type)
                     }
@@ -48,7 +48,7 @@ struct AddCardView: View {
                     validateBarcode()
                 }
 
-                Button("Skenovat") {
+                Button(String(localized: "scan")) {
                     showingScanner = true
                 }
 
@@ -70,16 +70,16 @@ struct AddCardView: View {
                 }
             }
         }
-        .navigationTitle("Přidat kartu")
+        .navigationTitle(String(localized: "add_card"))
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
-                Button("Zrušit") {
+                Button(String(localized: "cancel")) {
                     dismiss()
                 }
                 .foregroundColor(.red)
             }
             ToolbarItem(placement: .navigationBarTrailing) {
-                Button("Uložit") {
+                Button(String(localized: "save")) {
                     validateBarcode()
                     if barcodeError == nil {
                         let newCard = Card(name: name, note: note, barcodeData: barcodeData, barcodeType: barcodeType, category: category)
@@ -105,15 +105,15 @@ struct AddCardView: View {
         switch barcodeType {
         case .ean13:
             barcodeError = barcodeData.count == 13 && barcodeData.allSatisfy(\.isNumber)
-                ? nil : "EAN-13 musí mít přesně 13 číslic"
+                ? nil : String(localized: "ean-13_error")
         case .ean8:
             barcodeError = barcodeData.count == 8 && barcodeData.allSatisfy(\.isNumber)
-                ? nil : "EAN-8 musí mít přesně 8 číslic"
+                ? nil : String(localized: "ean-8_error")
         case .code128:
             barcodeError = barcodeData.count >= 4
-                ? nil : "Code128 musí mít alespoň 4 znaky"
+                ? nil : String(localized: "code128_error")
         case .qr:
-            barcodeError = barcodeData.isEmpty ? "QR kód nesmí být prázdný" : nil
+            barcodeError = barcodeData.isEmpty ? String(localized: "qr_error") : nil
         }
     }
 }

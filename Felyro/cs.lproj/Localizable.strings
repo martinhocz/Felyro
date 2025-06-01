@@ -5,3 +5,42 @@
 //  Created by Martin Horáček on 01.06.2025.
 //
 
+"cards" = "Karty";
+"import" = "Import";
+"export" = "Export";
+"delete" = "Smazat";
+"cancel" = "Zrušit";
+"edit" = "Upravit";
+"scan" = "Skenovat";
+"add_card" = "Přidat kartu";
+"search_cards" = "Hledat kartu";
+"all_categories" = "Vše";
+"other_category" = "Ostatní";
+"info_about_card" = "Informace o kartě";
+"name" = "Název";
+"note" = "Poznámka";
+"category" = "Kategorie";
+"barcode" = "Čárový kód";
+"code" = "Kód";
+"type_code" = "Typ kódu";
+"scan" = "Skenovat";
+"save" = "Uložit";
+"ean-13_error" = "EAN-13 musí mít přesně 13 číslic";
+"ean-8_error" = "EAN-8 musí mít přesně 8 číslic";
+"code128_error" = "Code128 musí mít alespoň 4 znaky";
+"qr_error" = "QR kód nesmí být prázdný";
+"error_with_generating_code" = "Nepodařilo se vygenerovat kód";
+"save_changes" = "Uložit změny";
+"remove_card" = "Smazat kartu";
+"edit_card" = "Upravit kartu";
+"sure_delete" = "Opravdu chcete smazat tuto kartu?";
+
+//CategoryType
+"category_all" = "Vše";
+"category_groceries" = "Potraviny";
+"category_drugstore" = "Drogerie";
+"category_fashion" = "Móda";
+"category_electronics" = "Elektronika";
+"category_other" = "Ostatní";
+"category_hobby" = "Hobby";
+"category" = "Kategorie";
