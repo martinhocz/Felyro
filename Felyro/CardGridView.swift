@@ -22,8 +22,6 @@ struct CardGridView: View {
     @State private var isExporting = false
     @State private var exportData: Data?
     @State private var showDeleteConfirmation = false
-    @State private var isShowingShareSheet = false
-    @State private var shareFileURL: URL?
 
     var body: some View {
         NavigationStack {
@@ -134,11 +132,6 @@ struct CardGridView: View {
             case .failure(let error): print("❌ Export selhal: \(error)")
             }
         }
-        .sheet(isPresented: $isShowingShareSheet) {
-            if let url = shareFileURL {
-                ShareSheet(items: [url])
-            }
-        }
         .alert(
             String.localizedStringWithFormat(
                 String(localized: "confirm_delete_cards"),
@@ -191,12 +184,7 @@ struct CardGridView: View {
             try data.write(to: tempURL)
 
             print("✅ Soubor připraven: \(tempURL)")
-
-            Task { @MainActor in
-                shareFileURL = tempURL
-                isShowingShareSheet = true
-            }
-
+            SharePresenter.presentShareSheet(with: [tempURL])
         } catch {
             print("❌ Chyba při přípravě sdílení: \(error)")
         }
