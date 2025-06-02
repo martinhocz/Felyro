@@ -190,12 +190,20 @@ struct CardGridView: View {
             let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent("cards.felyro")
             try data.write(to: tempURL)
 
-            shareFileURL = tempURL
-            isShowingShareSheet = true
+            print("✅ Soubor připraven: \(tempURL)")
+
+            Task { @MainActor in
+                shareFileURL = tempURL
+                isShowingShareSheet = true
+            }
+
         } catch {
             print("❌ Chyba při přípravě sdílení: \(error)")
         }
     }
+
+
+
 
     @MainActor
     private func importCards(from url: URL) {
