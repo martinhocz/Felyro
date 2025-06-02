@@ -4,12 +4,12 @@
 //
 //  Created by Martin Horáček on 01.06.2025.
 //
-
 "cards" = "Cards";
 "import" = "Import";
 "export" = "Export";
 "delete" = "Delete";
 "cancel" = "Cancel";
+"close" = "Close";
 "edit" = "Edit";
 "scan" = "Scan";
 "add_card" = "Add Card";
@@ -24,9 +24,9 @@
 "code" = "Code";
 "type_code" = "Code Type";
 "save" = "Save";
-"ean-13_error" = "EAN-13 must have exactly 13 digits";
-"ean-8_error" = "EAN-8 must have exactly 8 digits";
-"code128_error" = "Code128 must have at least 4 characters";
+"ean-13_error" = "EAN-13 must be exactly 13 digits";
+"ean-8_error" = "EAN-8 must be exactly 8 digits";
+"code128_error" = "Code128 must be at least 4 characters";
 "qr_error" = "QR code must not be empty";
 "error_with_generating_code" = "Failed to generate code";
 "save_changes" = "Save Changes";
@@ -43,3 +43,9 @@
 "category_other" = "Other";
 "category_hobby" = "Hobby";
 "category" = "Category";
+
+"camera_permission" = "Camera access is denied";
+"open_settings" = "Open Settings";
+"need_access_to_camera" = "To scan codes, you need to allow camera access.";
+"photo_permission" = "Photo access is denied";
+"need_access_to_photos" = "To select images from your library, you need to allow photo access.";

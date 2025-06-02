@@ -10,6 +10,7 @@
 "export" = "Export";
 "delete" = "Smazat";
 "cancel" = "Zrušit";
+"close" = "Zavřít";
 "edit" = "Upravit";
 "scan" = "Skenovat";
 "add_card" = "Přidat kartu";
@@ -44,3 +45,9 @@
 "category_other" = "Ostatní";
 "category_hobby" = "Hobby";
 "category" = "Kategorie";
+
+"camera_permission" = "Přístup ke kameře je zakázán";
+"open_settings" = "Otevřít Nastavení";
+"need_access_to_camera" = "Aby bylo možné skenovat kódy, musíš povolit přístup ke kameře.";
+"photo_permission" = "Přístup k fotkám je zakázán";
+"need_access_to_photos" = "Pro výběr obrázků z knihovny je nutné povolit přístup k fotkám.";

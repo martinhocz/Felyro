@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plist version="1.0">
+<dict>
+    <key>confirm_delete_cards</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@cards@</string>
+        <key>cards</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>d</string>
+            <key>one</key>
+            <string>Opravdu chcete smazat tuto kartu?</string>
+            <key>few</key>
+            <string>Opravdu chcete smazat %d karty?</string>
+            <key>other</key>
+            <string>Opravdu chcete smazat %d karet?</string>
+        </dict>
+    </dict>
+</dict>
+</plist>

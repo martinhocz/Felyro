@@ -20,6 +20,7 @@ struct CardGridView: View {
     @State private var showImporter = false
     @State private var isExporting = false
     @State private var exportData: Data?
+    @State private var showDeleteConfirmation = false
 
     var body: some View {
         NavigationStack {
@@ -53,23 +54,20 @@ struct CardGridView: View {
                     HStack(spacing: 8) {
                         Menu {
                             Button {
-                                    showImporter = true
-                                } label: {
-                                    Label(String(localized: "import"), systemImage: "square.and.arrow.down")
-                                        .labelStyle(.titleAndIcon)
-                                }
+                                showImporter = true
+                            } label: {
+                                Label(String(localized: "import"), systemImage: "square.and.arrow.down")
+                            }
                             Button {
-                                    exportAllCards()
-                                } label: {
-                                    Label(String(localized: "export"), systemImage: "square.and.arrow.up")
-                                        .labelStyle(.titleAndIcon)
-                                }
+                                exportAllCards()
+                            } label: {
+                                Label(String(localized: "export"), systemImage: "square.and.arrow.up")
+                            }
                             if isSelectionMode {
                                 Button(role: .destructive) {
-                                    deleteSelectedCards()
+                                    showDeleteConfirmation = true
                                 } label: {
                                     Label(String(localized: "delete"), systemImage: "trash")
-                                        .labelStyle(.titleAndIcon)
                                 }
                             }
                         } label: {
@@ -125,6 +123,22 @@ struct CardGridView: View {
             case .failure(let error): print("Export selhal: \(error)")
             }
         }
+        .alert(
+            String.localizedStringWithFormat(
+                String(localized: "confirm_delete_cards"),
+                selectedCards.count
+            ),
+            isPresented: $showDeleteConfirmation
+        ) {
+            Button(role: .destructive) {
+                deleteSelectedCards()
+            } label: {
+                Text(String(localized: "delete"))
+            }
+            Button(String(localized: "cancel"), role: .cancel) {
+                showDeleteConfirmation = false
+            }
+        }
     }
 
     private func exportAllCards() {
@@ -148,18 +162,52 @@ struct CardGridView: View {
         }
         selectedCards.removeAll()
         isSelectionMode = false
+        showDeleteConfirmation = false
     }
 
+    @MainActor
     private func importCards(from url: URL) {
-        do {
-            let data = try Data(contentsOf: url)
-            let decoder = JSONDecoder()
-            let dtos = try decoder.decode([CardDTO].self, from: data)
-            for dto in dtos {
-                context.insert(dto.toCard())
+        Task {
+            do {
+                let data = try Data(contentsOf: url)
+                let decoder = JSONDecoder()
+                let dtos = try decoder.decode([CardDTO].self, from: data)
+
+                let allCards = try context.fetch(FetchDescriptor<Card>())
+
+                for dto in dtos {
+                    let baseName = dto.name.trimmingCharacters(in: .whitespaces)
+                    let barcode = dto.barcodeData
+
+                    let similar = allCards.filter { $0.name == baseName || $0.name.hasPrefix(baseName + " ") }
+
+                    if similar.contains(where: { $0.name == baseName && $0.barcodeData == barcode }) {
+                        print("⏭️ Přeskočeno – \(baseName) s tímto barcode už existuje.")
+                        continue
+                    }
+
+                    var finalName = baseName
+                    var suffix = 2
+                    while similar.contains(where: { $0.name == finalName }) {
+                        finalName = "\(baseName) \(suffix)"
+                        suffix += 1
+                    }
+
+                    let card = Card(
+                        name: finalName,
+                        note: dto.note,
+                        barcodeData: dto.barcodeData,
+                        barcodeType: dto.barcodeType,
+                        category: dto.category
+                    )
+                    context.insert(card)
+                }
+
+                try context.save()
+                print("✅ Import úspěšně dokončen.")
+            } catch {
+                print("❌ Import selhal: \(error.localizedDescription)")
             }
-        } catch {
-            print("Import selhal: \(error)")
         }
     }
 }

@@ -9,24 +9,32 @@ import SwiftUI
 import AVFoundation
 import PhotosUI
 import Vision
+import Photos
 
 struct BarcodeScannerView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var scannedCode: String? = nil
     @State private var isTorchOn = false
     @State private var selectedItem: PhotosPickerItem? = nil
-    @State private var imageData: Data?
+    @State private var showCameraPermissionAlert = false
+    @State private var showPhotoPermissionAlert = false
+    @State private var cameraPermissionGranted = false
+    @State private var presentPhotosPicker = false
 
     var completion: (String) -> Void
 
     var body: some View {
         ZStack {
-            CameraPreview(isTorchOn: $isTorchOn, onCodeScanned: { code in
-                scannedCode = code
-                completion(code)
-                dismiss()
-            })
-            .ignoresSafeArea()
+            if cameraPermissionGranted {
+                CameraPreview(isTorchOn: $isTorchOn, onCodeScanned: { code in
+                    scannedCode = code
+                    completion(code)
+                    dismiss()
+                })
+                .ignoresSafeArea()
+            } else {
+                Color.black.ignoresSafeArea()
+            }
 
             VStack {
                 HStack {
@@ -45,51 +53,82 @@ struct BarcodeScannerView: View {
 
                 Spacer()
 
-                HStack(spacing: 20) {
-                    Button(action: { isTorchOn.toggle() }) {
-                        Image(systemName: isTorchOn ? "flashlight.on.fill" : "flashlight.off.fill")
-                            .font(.title2)
-                            .foregroundColor(.white)
-                            .padding()
-                            .background(.ultraThinMaterial)
-                            .clipShape(Circle())
-                    }
+                if cameraPermissionGranted {
+                    HStack(spacing: 20) {
+                        Button(action: { isTorchOn.toggle() }) {
+                            Image(systemName: isTorchOn ? "flashlight.on.fill" : "flashlight.off.fill")
+                                .font(.title2)
+                                .foregroundColor(.white)
+                                .padding()
+                                .background(.ultraThinMaterial)
+                                .clipShape(Circle())
+                        }
 
-                    PhotosPicker(
-                        selection: $selectedItem,
-                        matching: .images,
-                        photoLibrary: .shared()
-                    ) {
-                        Image(systemName: "photo")
-                            .font(.title2)
-                            .foregroundColor(.white)
-                            .padding()
-                            .background(.ultraThinMaterial)
-                            .clipShape(Circle())
-                    }
-                    .task(id: selectedItem) {
-                        guard let item = selectedItem else { return }
-
-                        do {
-                            if let data = try await item.loadTransferable(type: Data.self),
-                               let uiImage = UIImage(data: data) {
-                                detectBarcode(in: uiImage)
+                        Button {
+                            checkPhotoPermission { granted in
+                                if granted {
+                                    presentPhotosPicker = true
+                                } else {
+                                    showPhotoPermissionAlert = true
+                                }
                             }
-                        } catch {
-                            print("Chyba při načítání fotky: \(error)")
+                        } label: {
+                            Image(systemName: "photo")
+                                .font(.title2)
+                                .foregroundColor(.white)
+                                .padding()
+                                .background(.ultraThinMaterial)
+                                .clipShape(Circle())
                         }
                     }
+                    .padding(.bottom, 30)
                 }
-                .padding(.bottom, 30)
             }
         }
-        .onChange(of: selectedItem) {
-            Task {
-                guard let data = try? await selectedItem?.loadTransferable(type: Data.self),
-                      let uiImage = UIImage(data: data) else { return }
-
-                detectBarcode(in: uiImage)
+        .onAppear {
+            checkCameraPermission { granted in
+                cameraPermissionGranted = granted
+                if !granted {
+                    showCameraPermissionAlert = true
+                }
             }
+        }
+        .photosPicker(isPresented: $presentPhotosPicker, selection: $selectedItem, matching: .images)
+        .task(id: selectedItem) {
+            guard let item = selectedItem else { return }
+
+            do {
+                if let data = try await item.loadTransferable(type: Data.self),
+                   let uiImage = UIImage(data: data) {
+                    detectBarcode(in: uiImage)
+                }
+            } catch {
+                print("Chyba při načítání fotky: \(error)")
+            }
+        }
+        .alert(String(localized: "camera_permission"), isPresented: $showCameraPermissionAlert) {
+            Button(String(localized: "open_settings")) {
+                if let url = URL(string: UIApplication.openSettingsURLString) {
+                    UIApplication.shared.open(url)
+                }
+            }
+            Button(String(localized: "close"), role: .cancel) {
+                dismiss()
+            }
+        } message: {
+            Text(String(localized: "need_access_to_camera"))
+        }
+        .alert(String(localized: "photo_permission"), isPresented: $showPhotoPermissionAlert) {
+            Button(String(localized: "open_settings")) {
+                if let url = URL(string: UIApplication.openSettingsURLString) {
+                    UIApplication.shared.open(url)
+                }
+            }
+            Button(String(localized: "close"), role: .cancel) {
+                dismiss()
+            }
+        } message: {
+            Text(String(localized: "need_access_to_photos"))
         }
     }
 
@@ -107,6 +146,42 @@ struct BarcodeScannerView: View {
 
         let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
         try? handler.perform([request])
+    }
+
+    private func checkCameraPermission(completion: @escaping (Bool) -> Void) {
+        let status = AVCaptureDevice.authorizationStatus(for: .video)
+        switch status {
+        case .authorized:
+            completion(true)
+        case .notDetermined:
+            AVCaptureDevice.requestAccess(for: .video) { granted in
+                DispatchQueue.main.async {
+                    completion(granted)
+                }
+            }
+        case .denied, .restricted:
+            completion(false)
+        @unknown default:
+            completion(false)
+        }
+    }
+
+    private func checkPhotoPermission(completion: @escaping (Bool) -> Void) {
+        let status = PHPhotoLibrary.authorizationStatus(for: .readWrite)
+        switch status {
+        case .authorized, .limited:
+            completion(true)
+        case .notDetermined:
+            PHPhotoLibrary.requestAuthorization(for: .readWrite) { newStatus in
+                DispatchQueue.main.async {
+                    completion(newStatus == .authorized || newStatus == .limited)
+                }
+            }
+        case .denied, .restricted:
+            completion(false)
+        @unknown default:
+            completion(false)
+        }
     }
 }
 
