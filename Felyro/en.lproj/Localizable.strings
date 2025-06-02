@@ -49,3 +49,11 @@
 "need_access_to_camera" = "To scan codes, you need to allow camera access.";
 "photo_permission" = "Photo access is denied";
 "need_access_to_photos" = "To select images from your library, you need to allow photo access.";
+
+"share_selected_cards" = "Share selected cards";
+"import_cards" = "Card Import";
+"import2" = "Import";
+
+
+"select_all" = "Select all";
+"deselect_all" = "Uncheck all";

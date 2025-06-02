@@ -8,6 +8,7 @@ import SwiftUI
 import SwiftData
 import UniformTypeIdentifiers
 
+
 struct CardGridView: View {
     @Environment(\.modelContext) private var context
 
@@ -21,6 +22,8 @@ struct CardGridView: View {
     @State private var isExporting = false
     @State private var exportData: Data?
     @State private var showDeleteConfirmation = false
+    @State private var isShowingShareSheet = false
+    @State private var shareFileURL: URL?
 
     var body: some View {
         NavigationStack {
@@ -58,12 +61,20 @@ struct CardGridView: View {
                             } label: {
                                 Label(String(localized: "import"), systemImage: "square.and.arrow.down")
                             }
+
                             Button {
                                 exportAllCards()
                             } label: {
                                 Label(String(localized: "export"), systemImage: "square.and.arrow.up")
                             }
+
                             if isSelectionMode {
+                                Button {
+                                    shareSelectedCards()
+                                } label: {
+                                    Label(String(localized: "share_selected_cards"), systemImage: "square.and.arrow.up")
+                                }
+
                                 Button(role: .destructive) {
                                     showDeleteConfirmation = true
                                 } label: {
@@ -102,14 +113,14 @@ struct CardGridView: View {
         }
         .fileImporter(
             isPresented: $showImporter,
-            allowedContentTypes: [.json],
+            allowedContentTypes: [.json, felyroUTType],
             allowsMultipleSelection: false
         ) { result in
             do {
                 guard let url = try result.get().first else { return }
                 importCards(from: url)
             } catch {
-                print("Import selhal: \(error)")
+                print("❌ Import selhal: \(error)")
             }
         }
         .fileExporter(
@@ -119,8 +130,13 @@ struct CardGridView: View {
             defaultFilename: "cards"
         ) { result in
             switch result {
-            case .success: print("Export dokončen.")
-            case .failure(let error): print("Export selhal: \(error)")
+            case .success: print("✅ Export dokončen.")
+            case .failure(let error): print("❌ Export selhal: \(error)")
+            }
+        }
+        .sheet(isPresented: $isShowingShareSheet) {
+            if let url = shareFileURL {
+                ShareSheet(items: [url])
             }
         }
         .alert(
@@ -152,7 +168,7 @@ struct CardGridView: View {
             exportData = try encoder.encode(dtos)
             isExporting = true
         } catch {
-            print("Export selhal: \(error)")
+            print("❌ Export selhal: \(error)")
         }
     }
 
@@ -165,46 +181,70 @@ struct CardGridView: View {
         showDeleteConfirmation = false
     }
 
+    private func shareSelectedCards() {
+        guard !selectedCards.isEmpty else { return }
+
+        do {
+            let transferCards = selectedCards.map(TransferCard.init)
+            let data = try JSONEncoder().encode(transferCards)
+            let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent("cards.felyro")
+            try data.write(to: tempURL)
+
+            shareFileURL = tempURL
+            isShowingShareSheet = true
+        } catch {
+            print("❌ Chyba při přípravě sdílení: \(error)")
+        }
+    }
+
     @MainActor
     private func importCards(from url: URL) {
         Task {
             do {
                 let data = try Data(contentsOf: url)
-                let decoder = JSONDecoder()
-                let dtos = try decoder.decode([CardDTO].self, from: data)
 
-                let allCards = try context.fetch(FetchDescriptor<Card>())
+                if url.pathExtension == "felyro" {
+                    let transferCards = try JSONDecoder().decode([TransferCard].self, from: data)
+                    for tcard in transferCards {
+                        context.insert(tcard.toCard())
+                    }
+                    try context.save()
+                    print("✅ Import .felyro úspěšný.")
+                } else {
+                    let dtos = try JSONDecoder().decode([CardDTO].self, from: data)
+                    let allCards = try context.fetch(FetchDescriptor<Card>())
 
-                for dto in dtos {
-                    let baseName = dto.name.trimmingCharacters(in: .whitespaces)
-                    let barcode = dto.barcodeData
+                    for dto in dtos {
+                        let baseName = dto.name.trimmingCharacters(in: .whitespaces)
+                        let barcode = dto.barcodeData
 
-                    let similar = allCards.filter { $0.name == baseName || $0.name.hasPrefix(baseName + " ") }
+                        let similar = allCards.filter { $0.name == baseName || $0.name.hasPrefix(baseName + " ") }
 
-                    if similar.contains(where: { $0.name == baseName && $0.barcodeData == barcode }) {
-                        print("⏭️ Přeskočeno – \(baseName) s tímto barcode už existuje.")
-                        continue
+                        if similar.contains(where: { $0.name == baseName && $0.barcodeData == barcode }) {
+                            print("⏭️ Přeskočeno – \(baseName) s tímto barcode už existuje.")
+                            continue
+                        }
+
+                        var finalName = baseName
+                        var suffix = 2
+                        while similar.contains(where: { $0.name == finalName }) {
+                            finalName = "\(baseName) \(suffix)"
+                            suffix += 1
+                        }
+
+                        let card = Card(
+                            name: finalName,
+                            note: dto.note,
+                            barcodeData: dto.barcodeData,
+                            barcodeType: dto.barcodeType,
+                            category: dto.category
+                        )
+                        context.insert(card)
                     }
 
-                    var finalName = baseName
-                    var suffix = 2
-                    while similar.contains(where: { $0.name == finalName }) {
-                        finalName = "\(baseName) \(suffix)"
-                        suffix += 1
-                    }
-
-                    let card = Card(
-                        name: finalName,
-                        note: dto.note,
-                        barcodeData: dto.barcodeData,
-                        barcodeType: dto.barcodeType,
-                        category: dto.category
-                    )
-                    context.insert(card)
+                    try context.save()
+                    print("✅ Import JSON úspěšný.")
                 }
-
-                try context.save()
-                print("✅ Import úspěšně dokončen.")
             } catch {
                 print("❌ Import selhal: \(error.localizedDescription)")
             }

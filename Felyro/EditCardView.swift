@@ -4,6 +4,7 @@
 //
 //  Created by Martin Horáček on 28.05.2025.
 //
+
 import SwiftUI
 import SwiftData
 
@@ -64,13 +65,6 @@ struct EditCardView: View {
             }
 
             Section {
-                Button(String(localized: "save_changes")) {
-                    validateBarcode()
-                    if barcodeError == nil {
-                        dismiss()
-                    }
-                }
-
                 Button(role: .destructive) {
                     showDeleteConfirmation = true
                 } label: {
@@ -79,6 +73,14 @@ struct EditCardView: View {
             }
         }
         .navigationTitle(String(localized: "edit_card"))
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button(String(localized: "save_changes")) {
+                    dismiss()
+                }
+                .disabled(barcodeError != nil)
+            }
+        }
         .onAppear {
             validateBarcode()
         }
@@ -98,7 +100,7 @@ struct EditCardView: View {
         switch card.barcodeType {
         case .ean13:
             barcodeError = card.barcodeData.count == 13 && card.barcodeData.allSatisfy(\.isNumber)
-            ? nil : String(localized: "ean-13_error")
+                ? nil : String(localized: "ean-13_error")
         case .ean8:
             barcodeError = card.barcodeData.count == 8 && card.barcodeData.allSatisfy(\.isNumber)
                 ? nil : String(localized: "ean-8_error")
@@ -106,7 +108,8 @@ struct EditCardView: View {
             barcodeError = card.barcodeData.count >= 4
                 ? nil : String(localized: "code128_error")
         case .qr:
-            barcodeError = card.barcodeData.isEmpty ? String(localized: "qr_error") : nil
+            barcodeError = card.barcodeData.isEmpty
+                ? String(localized: "qr_error") : nil
         }
     }
 }
