@@ -47,4 +47,8 @@ This project is licensed under the [MIT License](LICENSE).
 
 Martin Horáček  
 📧 martin.horacek@martinho.cz  
-🌐 [martinho.cz](https://martinho.cz)
+🌐 [martinho.cz](https://martinho.cz)---
+
+### Credits
+
+- App icon was generated with the help of ChatGPT image generation tools.
