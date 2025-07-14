@@ -58,3 +58,13 @@
 
 "select_all" = "Vybrat vše";
 "deselect_all" = "Odznačit vše";
+
+"showAbout" = "O Aplikaci";
+
+//About
+"About" = "O aplikaci";
+"Links" = "Odkazy";
+"GitHub_Link" = "Projekt na GitHubu";
+"Website_Link" = "Oficiální web";
+"License_Link" = "Licence";
+"About_Text" = "Felyro je jednoduchá a na soukromí zaměřená iOS aplikace pro ukládání věrnostních karet, kupónů a dalších identifikátorů na bázi čárových nebo QR kódů. Aplikace je zcela zdarma, bez reklam a bez sledování dat – vše zůstává pouze ve vašem zařízení.";

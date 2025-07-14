@@ -22,6 +22,7 @@ struct CardGridView: View {
     @State private var isExporting = false
     @State private var exportData: Data?
     @State private var showDeleteConfirmation = false
+    @State private var showAbout = false
 
     var body: some View {
         NavigationStack {
@@ -78,6 +79,12 @@ struct CardGridView: View {
                                 } label: {
                                     Label(String(localized: "delete"), systemImage: "trash")
                                 }
+                            }
+                            
+                            Button {
+                                showAbout = true
+                            } label: {
+                                Label(String(localized: "showAbout"), systemImage: "info.circle")
                             }
                         } label: {
                             Image(systemName: "line.3.horizontal")
@@ -147,6 +154,9 @@ struct CardGridView: View {
             Button(String(localized: "cancel"), role: .cancel) {
                 showDeleteConfirmation = false
             }
+        }
+        .sheet(isPresented: $showAbout) {
+            AboutView()
         }
     }
 
