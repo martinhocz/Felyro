@@ -10,6 +10,13 @@
 - Built with modern SwiftUI for iOS and macOS
 - No ads, no analytics, no tracking
 
+## Supported Code Formats
+
+- `Code 128` – versatile 1D barcode format
+- `EAN-13`, `EAN-8` – common retail barcodes
+- `QR` – 2D QR codes
+
+
 ## 🛠 Requirements
 
 - iOS 17.0+
