@@ -46,8 +46,8 @@ This project is licensed under the [MIT License](LICENSE).
 ## 💬 Contact
 
 Martin Horáček  
-📧 martin.horacek@martinho.cz  
-🌐 [martinho.cz](https://martinho.cz)---
+📧 support@felyro.eu
+🌐 [felyro.eu](https://felyro.eu)
 
 ### Credits
 
