@@ -24,8 +24,9 @@
 - Swift 5.9+
 
 ## 📸 Screenshots
-
-| ![Home](Images/en-1.png) | ![Card](Images/en-2.png) | ![Card Edit](Images/en-3.png) | ![Add Card](Images/en-4.png) |
+| Home Screen | Card View | Card Edit | Add Card |
+|:-----------:|:---------:|:---------:|:--------:|
+| <img src="Images/en-1.png" width="200"/>  | <img src="Images/en-2.png" width="200"/> | <img src="Images/en-3.png" width="200"/> | <img src="Images/en-4.png" width="200"/> |
 
 ## 🚀 Installation
 
