@@ -25,9 +25,7 @@
 
 ## 📸 Screenshots
 
-| iOS |
-|:---:|
-| _add screenshot here_ |
+| ![Home](Images/en-1.png) | ![Card](Images/en-2.png) | ![Card Edit](Images/en-3.png) | ![Add Card](Images/en-4.png) |
 
 ## 🚀 Installation
 
