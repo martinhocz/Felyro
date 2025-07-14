@@ -26,6 +26,11 @@ struct AboutView: View {
                     Link(String(localized: "GitHub_Link"), destination: URL(string: "https://github.com/martinhocz/Felyro")!)
                     Link(String(localized: "Website_Link"), destination: URL(string: "https://felyro.eu")!)
                     Link(String(localized: "License_Link"), destination: URL(string: "https://github.com/martinhocz/Felyro/blob/main/LICENSE")!)
+                    Text(String(localized: "AI_Attribution"))
+                        .font(.footnote)
+                        .foregroundColor(.secondary)
+                        .padding(.top, 8)
+
                     
                 }
                 .padding()
