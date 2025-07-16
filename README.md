@@ -39,7 +39,8 @@
 
 ## 📦 Distribution
 
-The app is available for free on the App Store _(link will be added after approval)_.
+The app is available for free on the App Store.
+[![Download on the App Store](https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/en-us)](https://apps.apple.com/us/app/felyro/id6746584796)
 
 ## 👥 Contributing
 
